@@ -1,0 +1,30 @@
+body{
+    background-image: url("img/backdrop/skulls.png");
+}
+.btn{
+  transition: 0.1s;
+  cursor: none;
+}
+#main-con{
+    position: relative;
+}
+#hp-bar{
+    height: 1rem;
+    background-color: green;
+    width: 100%;
+}
+#super-ball-bar{
+    height: 1rem;
+    background-color: green;
+    width: 0%;
+}
+#heal-bar{
+    height: 1rem;
+    background-color: green;
+    width: 0%;
+}
+#life-img {
+    width: 7%;
+    height: 7%;
+    margin: 2px;
+}
