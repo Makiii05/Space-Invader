@@ -23,8 +23,18 @@ body{
     background-color: green;
     width: 0%;
 }
+.boss-hp-bar{
+    height: 0.5rem;
+    background-color: red;
+    width: 100%;
+}
 #life-img {
     width: 7%;
     height: 7%;
     margin: 2px;
+}
+.selected{
+    font-size: 12px;
+    color: gold;
+    cursor: none;
 }

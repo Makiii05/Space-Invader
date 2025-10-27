@@ -1,6 +1,8 @@
 const btn = document.querySelectorAll(".btn");
 const selector = document.querySelectorAll(".selector");
 
+const insBtn = document.querySelectorAll(".instruction")
+
 const menuCon = document.querySelector("#menu-con");
 const hpCon = document.querySelector("#hp-con");
 const statsCon = document.querySelector("#stats-con");
@@ -47,32 +49,45 @@ let heal = 0;
 let life = 3;
 
 let menu_btn_selected_id = 0;
+let ins_btn_selected_id = 0;
 let page = "Menu";
 let nextRoundCalled = false;
 
 const classicRound = {
-    1: ["line", 20, 3000, 1],
+    1: ["line", 20, 1000, 1],
     2: ["diagonal", 20, 1000, 1],
-    3: ["arrow", 2, 1000, 1],
-    4: ["boss", 1, 1000, 20],
+    3: ["arrow", 2, 2000, 1],
+    4: ["boss", 1, 1000, 25],
     5: ["line", 30, 750, 1],
     6: ["diagonal", 30, 750, 1],
-    7: ["arrow", 3, 1000, 1],
-    8: ["boss", 2, 1000, 30],
+    7: ["arrow", 3, 3000, 1],
+    8: ["boss", 2, 1000, 50],
     9: ["line", 50, 500, 1],
     10: ["diagonal", 50, 500, 1],
-    11: ["arrow", 4, 1000, 1],
-    12: ["mothership", 1, 3000, 40],
+    11: ["arrow", 4, 4000, 1],
+    12: ["mothership", 1, 3000, 200],
 };
 
 function updateSelection() {
     btn.forEach((b, i) => {
         if (i === menu_btn_selected_id) {
-            b.classList.add("fs-5");
+            b.classList.add("fs-5", "selected");
             selector[i].classList.remove("d-none");
         } else {
-            b.classList.remove("fs-5");
+            b.classList.remove("fs-5", "selected");
             selector[i].classList.add("d-none");
+        }
+    });
+}
+
+function updateInstruction() {
+    insBtn.forEach((b, i) => {
+        if (i === ins_btn_selected_id) {
+            b.classList.add("selected");
+            document.getElementById(b.innerText).classList.remove("d-none")
+        } else {
+            b.classList.remove("selected");
+            document.getElementById(b.innerText).classList.add("d-none")
         }
     });
 }
@@ -268,9 +283,39 @@ function mothershipAttack(enemy, container) {
     }, bulletFireRate);
 }
 
+function startEnemyAttack(enemy, container) {
+    if (!enemy || enemy.remove || enemy.hp <= 0) return;
+
+    const baseInterval = 2000 + Math.random() * 3000; 
+    const attackChance = 0.3 + Math.random() * 0.1; 
+
+    const attackLoop = setInterval(() => {
+        if (!gameLoopRunning || enemy.remove || enemy.hp <= 0) {
+            clearInterval(attackLoop);
+            return;
+        }
+
+        if (Math.random() < attackChance) {
+            shootAtPlayer(enemy, container);
+        }
+    }, baseInterval);
+}
+
+function shootAtPlayer(enemy, container) {
+    if (!enemy || !currentPlayer) return;
+
+    const playerX = currentPlayer.x + 4.5;
+    const playerY = currentPlayer.y;
+    const bulletX = enemy.x;
+    const bulletY = enemy.y;
+
+    const bullet = new EnemyBullet(bulletX, bulletY, playerX, playerY);
+    bullet.render(container);
+}
+
 function startCountdown(pageCon) {
     pageCon.innerHTML = `
-        <div id="countdown-con" class="fs-1 text-center border d-flex flex-column align-items-center justify-content-center h-100">
+        <div id="countdown-con" class="fs-1 text-center d-flex flex-column align-items-center justify-content-center h-100">
             <small class="fs-3">(${page})</small>
             <p>GET READY!</p>
             <p>GAME STARTS IN</p>
@@ -297,6 +342,12 @@ function startCountdown(pageCon) {
 
 function classicMode(container) {
     stopGame();
+
+    const base = document.createElement("div");
+    base.classList.add("border", "border-danger")
+    base.style.position = "relative"
+    base.style.top = "100%"
+    mainCon.appendChild(base)
 
     currentPlayer = new Player(100, 1);
     currentPlayer.render(container);
@@ -401,6 +452,7 @@ function spawnLineEnemies(container, number, speed, hp) {
             enemy.render(container);
             enemy.move(min, max);
             updateStats();
+            startEnemyAttack(enemy, container);
 
             spawned++;
         }
@@ -421,6 +473,8 @@ function spawnDiagonalEnemies(container, number, speed, hp) {
         enemyL.render(container);
         enemyL.move(0, 95);
         updateStats();
+        startEnemyAttack(enemyL, container);
+        startEnemyAttack(enemyR, container);
         summoned++;
     }, 400);
 }
@@ -430,21 +484,36 @@ function spawnArrowEnemies(container, number, speed, hp) {
     const enemyPerRow = 20;
     const centerX = 50;
     const spacing = 5;
+    let rowY = 5
 
-    for (let i = 0; i < enemyPerRow; i++) {
-        const offset = (i - enemyPerRow / 2) * spacing;
-        const x = centerX + offset;
-        const y = 5 + (enemyPerRow / 2 - Math.abs(i - enemyPerRow / 2)) * 1.8;
+    for (let i = 0; i < numRow; i++) {
+        for (let i = 0; i < enemyPerRow; i++) {
+            const offset = (i - enemyPerRow / 2) * spacing;
+            const x = centerX + offset;
+            const y = rowY + (enemyPerRow / 2 - Math.abs(i - enemyPerRow / 2)) * 1.8;
 
-        const enemy = new Enemy(x, y, speed, hp, "arrow");
-        enemy.render(container);
-        enemy.move(x + 20, x - 10);
-        updateStats();
+            const enemy = new Enemy(x, y, speed, hp, "arrow");
+            enemy.render(container);
+            enemy.move(x + 20, x - 10);
+            updateStats();
+            startEnemyAttack(enemy, container);
+        }
+        rowY += 5;
     }
 }
 
 function spawnBoss(container, speed, hp, type = "boss") {
     const enemy = new Enemy(45, 10, speed, hp, type);
+        
+    const bossHpCon = document.createElement('div')
+    bossHpCon.classList.add("bg-dark", "border", "border-light", "rounded-pill")
+    bossHpCon.style.width = "100%"
+    const bossHp = document.createElement('div')
+    bossHp.classList.add("boss-hp-bar", "rounded-pill")
+
+    mainCon.appendChild(bossHpCon)
+    bossHpCon.appendChild(bossHp)
+
 
     if (type === "mothership") {
         enemy.el.style.width = "60%";
@@ -464,6 +533,14 @@ function spawnBoss(container, speed, hp, type = "boss") {
         enemy.el.src = "img/sprite/boss.gif";
         enemy.render(container);
         enemy.move(10, 80);
+        
+        const attackInterval = setInterval(() => {
+            if (!gameLoopRunning || enemy.remove || enemy.hp <= 0) {
+                clearInterval(attackInterval);
+                return;
+            }
+            normalAndBossAttack(enemy, container)
+        }, 3000);
     }
 
     updateStats();
@@ -651,7 +728,6 @@ function stopMainS() {
     catch (e) { }
 }
 
-// Menu music controls
 function playMenuS() {
     try { menuS.currentTime = 0; menuS.play(); }
     catch (err) { console.log("Menu sound blocked:", err); }
@@ -704,13 +780,12 @@ function playSuperballS(){
     }
 }
 
-
 class Player {
     constructor(hp, playerNo) {
         this.hp = hp;
         this.playerNo = playerNo;
         this.x = 45;
-        this.y = 90;
+        this.y = 85;
         this.min_x = 0;
         this.max_x = 90;
         this.shooted = false;
@@ -762,6 +837,7 @@ class Player {
 
 class Enemy {
     constructor(x, y, speed, hp, type) {
+        this.maxHp = hp
         this.hp = hp;
         this.x = x;
         this.y = y;
@@ -800,9 +876,15 @@ class Enemy {
                 this.remove = true;
                 clearInterval(this.moveInterval);
                 this.moveInterval = null;
+                setTimeout(() => { gameOver() }, 100)
                 return;
             }
             if (this.type === "line" || this.type === "boss") {
+                if(this.type === "boss"){
+                    let bossHp = (this.hp / this.maxHp) * 100
+                    const bossHpBar = document.querySelector(".boss-hp-bar")
+                    bossHpBar.style.width = bossHp +"%"
+                }
                 if (this.direction === "right") {
                     this.x += 1;
                     if (this.x >= max) {
@@ -832,6 +914,9 @@ class Enemy {
             } else if (this.type === "arrow") {
                 this.y += 0.5;
             } else if (this.type === "mothership") {
+                let bossHp = (this.hp / this.maxHp) * 100
+                const bossHpBar = document.querySelector(".boss-hp-bar")
+                bossHpBar.style.width = bossHp +"%"
                 if (this.direction === "right") {
                     this.x += 1;
                     if (this.x >= max) {
@@ -976,6 +1061,12 @@ document.addEventListener("keydown", (event) => {
             updatePage();
         }
         updateSelection();
+    }else if (page === "Instruction") {
+        if (event.key === "ArrowLeft" && ins_btn_selected_id > 0) 
+            ins_btn_selected_id--;
+        else if (event.key === "ArrowRight" && ins_btn_selected_id < insBtn.length - 1) 
+            ins_btn_selected_id++;
+        updateInstruction();
     }
     if (event.key === "Escape") {
         page = "Menu";
