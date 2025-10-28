@@ -283,31 +283,23 @@ function mothershipAttack(enemy, container) {
     }, bulletFireRate);
 }
 
-function startEnemyAttack(enemy, container) {
-    if (!enemy || enemy.remove || enemy.hp <= 0) return;
+// Function to create and fire a single bullet
+function fireEnemyBullet(type, enemyX, enemyY, container) {
 
-    const baseInterval = 2000 + Math.random() * 3000; 
-    const attackChance = 0.3 + Math.random() * 0.1; 
-
-    const attackLoop = setInterval(() => {
-        if (!gameLoopRunning || enemy.remove || enemy.hp <= 0) {
-            clearInterval(attackLoop);
-            return;
-        }
-
-        if (Math.random() < attackChance) {
-            shootAtPlayer(enemy, container);
-        }
-    }, baseInterval);
-}
-
-function shootAtPlayer(enemy, container) {
-    if (!enemy || !currentPlayer) return;
-
-    const playerX = currentPlayer.x + 4.5;
+    const playerX = currentPlayer.x + 4.5; // Center of player
     const playerY = currentPlayer.y;
-    const bulletX = enemy.x;
-    const bulletY = enemy.y;
+    
+    // Calculate bullet spawn position based on enemy type
+    let bulletX = enemyX;
+    let bulletY = enemyY;
+    
+    if (type === "boss") {
+        bulletX = enemyX + 6; // Center of boss
+        bulletY = enemyY + 10;
+    } else {
+        bulletX = enemyX + 2.5; // Center of normal enemy
+        bulletY = enemyY + 5;
+    }
 
     const bullet = new EnemyBullet(bulletX, bulletY, playerX, playerY);
     bullet.render(container);
@@ -452,7 +444,6 @@ function spawnLineEnemies(container, number, speed, hp) {
             enemy.render(container);
             enemy.move(min, max);
             updateStats();
-            startEnemyAttack(enemy, container);
 
             spawned++;
         }
@@ -473,8 +464,6 @@ function spawnDiagonalEnemies(container, number, speed, hp) {
         enemyL.render(container);
         enemyL.move(0, 95);
         updateStats();
-        startEnemyAttack(enemyL, container);
-        startEnemyAttack(enemyR, container);
         summoned++;
     }, 400);
 }
@@ -496,7 +485,6 @@ function spawnArrowEnemies(container, number, speed, hp) {
             enemy.render(container);
             enemy.move(x + 20, x - 10);
             updateStats();
-            startEnemyAttack(enemy, container);
         }
         rowY += 5;
     }
@@ -514,33 +502,28 @@ function spawnBoss(container, speed, hp, type = "boss") {
     mainCon.appendChild(bossHpCon)
     bossHpCon.appendChild(bossHp)
 
-
     if (type === "mothership") {
         enemy.el.style.width = "60%";
         enemy.el.src = "img/sprite/mothership.png";
         enemy.render(container);
         enemy.move(0, 40);
 
-        const attackInterval = setInterval(() => {
+        // Mothership shoots bursts every 4 seconds (increased from 3)
+        const attackBurst = () => {
             if (!gameLoopRunning || enemy.remove || enemy.hp <= 0) {
-                clearInterval(attackInterval);
                 return;
             }
             mothershipAttack(enemy, container);
-        }, 3000);
+            setTimeout(attackBurst, 4000);
+        };
+        setTimeout(attackBurst, 2000); // First attack after 2 seconds
+
     } else {
+        // Normal boss
         enemy.el.style.width = "15%";
         enemy.el.src = "img/sprite/boss.gif";
         enemy.render(container);
         enemy.move(10, 80);
-        
-        const attackInterval = setInterval(() => {
-            if (!gameLoopRunning || enemy.remove || enemy.hp <= 0) {
-                clearInterval(attackInterval);
-                return;
-            }
-            normalAndBossAttack(enemy, container)
-        }, 3000);
     }
 
     updateStats();
@@ -878,6 +861,26 @@ class Enemy {
                 this.moveInterval = null;
                 setTimeout(() => { gameOver() }, 100)
                 return;
+            }
+            if(this.type != "mothership"){
+                if (this.type === "boss") {
+                    // Boss shoots in a regular interval (every ~2 seconds)
+                    if (!this.attackInterval) {
+                        this.attackInterval = setInterval(() => {
+                            if (!gameLoopRunning || this.remove || this.hp <= 0) {
+                                clearInterval(this.attackInterval);
+                                this.attackInterval = null;
+                                return;
+                            }
+                            fireEnemyBullet(this.type, this.x, this.y, mainCon);
+                        }, 2000);
+                    }
+                } else {
+                    // Normal enemies shoot occasionally
+                    if (Math.random() < 0.001) { // 1% chance per move tick
+                        fireEnemyBullet(this.type, this.x, this.y, mainCon);
+                    }
+                }
             }
             if (this.type === "line" || this.type === "boss") {
                 if(this.type === "boss"){
