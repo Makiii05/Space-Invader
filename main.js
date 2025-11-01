@@ -16,6 +16,7 @@ const lifeEl = document.getElementById("life-con");
 const hpBar = document.getElementById("hp-bar");
 const superBallBar = document.getElementById("super-ball-bar");
 const healBar = document.getElementById("heal-bar");
+const speedBar = document.getElementById("speed-bar");
 
 const shootS = new Audio("mp3/shoot.wav");
 const explosionS = new Audio("mp3/explosion.wav");
@@ -46,6 +47,8 @@ let score = 0;
 let enemyCount = 0;
 let superBall = 0;
 let heal = 0;
+let speedAtk = 0;
+let speedIsOn = false;
 let life = 3;
 
 let menu_btn_selected_id = 0;
@@ -145,6 +148,24 @@ function updatePowerUPs() {
     } else {
         healBar.style.backgroundColor = "red";
     }
+    
+    if (speedAtk < 100 && speedIsOn == false) {
+        speedAtk += 0.5;
+        speedBar.style.width = speedAtk + "%";
+        speedBar.style.backgroundColor = "green";
+    } else {
+        speedBar.style.backgroundColor = "red";
+    }
+
+    if(speedAtk > 0 && speedIsOn){
+        speedAtk -= 10;
+        speedBar.style.width = speedAtk + "%";
+        speedBar.style.backgroundColor = "yellow"
+    } else if (speedAtk <= 0 && speedIsOn) {
+        speedAtk = 0
+        speedIsOn = false
+        currentPlayer.fireRate = 300
+    }
 }
 
 function loadMainBackground() {
@@ -170,6 +191,7 @@ function resetGameState() {
     enemyCount = 0;
     superBall = 0;
     heal = 0;
+    speedAtk = 0;
     life = 3;
     curRound = null;
     nextRoundCalled = false;
@@ -216,6 +238,8 @@ function resetGameState() {
     superBallBar.style.backgroundColor = "green";
     healBar.style.width = "0%";
     healBar.style.backgroundColor = "green";
+    speedBar.style.width = "0%";
+    speedBar.style.backgroundColor = "green";
     lifeEl.innerHTML = "";
     for (let i = 0; i < life; i++) {
         lifeEl.innerHTML += `<img id="life-img" src="img/sprite/player.png">`;
@@ -283,7 +307,6 @@ function mothershipAttack(enemy, container) {
     }, bulletFireRate);
 }
 
-// Function to create and fire a single bullet
 function fireEnemyBullet(type, enemyX, enemyY, container) {
 
     const playerX = currentPlayer.x + 4.5; // Center of player
@@ -364,6 +387,14 @@ function classicMode(container) {
                 e.preventDefault();
                 currentPlayer.shoot(container, true);
                 superBall = 0;
+                updateStats();
+            }
+        }
+        if (e.key.toLowerCase() === "c" && gameLoopRunning && currentPlayer) {
+            if (speedAtk >= 100) {
+                e.preventDefault();
+                currentPlayer.fireRate = 100
+                speedIsOn = true
                 updateStats();
             }
         }
@@ -864,7 +895,6 @@ class Enemy {
             }
             if(this.type != "mothership"){
                 if (this.type === "boss") {
-                    // Boss shoots in a regular interval (every ~2 seconds)
                     if (!this.attackInterval) {
                         this.attackInterval = setInterval(() => {
                             if (!gameLoopRunning || this.remove || this.hp <= 0) {
@@ -876,8 +906,7 @@ class Enemy {
                         }, 2000);
                     }
                 } else {
-                    // Normal enemies shoot occasionally
-                    if (Math.random() < 0.001) { // 1% chance per move tick
+                    if (Math.random() < 0.0025) {
                         fireEnemyBullet(this.type, this.x, this.y, mainCon);
                     }
                 }
@@ -1076,6 +1105,7 @@ document.addEventListener("keydown", (event) => {
         updatePage();
     }
 });
+
 
 function main() {
     updateSelection();

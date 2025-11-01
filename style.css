@@ -23,6 +23,11 @@ body{
     background-color: green;
     width: 0%;
 }
+#speed-bar{
+    height: 1rem;
+    background-color: green;
+    width: 0%;
+}
 .boss-hp-bar{
     height: 0.5rem;
     background-color: red;
@@ -38,3 +43,4 @@ body{
     color: gold;
     cursor: none;
 }
+
