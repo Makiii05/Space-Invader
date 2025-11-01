@@ -1,6 +1,17 @@
 const btn = document.querySelectorAll(".btn");
 const selector = document.querySelectorAll(".selector");
 
+const btnUp = document.getElementById("mobile-up")
+const btnLeft = document.getElementById("mobile-left")
+const btnEnter = document.getElementById("mobile-enter")
+const btnRight = document.getElementById("mobile-right")
+const btnDown = document.getElementById("mobile-down")
+const btnZ = document.getElementById("mobile-z")
+const btnX = document.getElementById("mobile-x")
+const btnC = document.getElementById("mobile-c")
+const btnAtk = document.getElementById("mobile-atk")
+const btnEsc = document.getElementById("mobile-esc")
+
 const insBtn = document.querySelectorAll(".instruction")
 
 const menuCon = document.querySelector("#menu-con");
@@ -53,7 +64,7 @@ let life = 3;
 
 let menu_btn_selected_id = 0;
 let ins_btn_selected_id = 0;
-let page = "Menu";
+let page = "Classic Mode";
 let nextRoundCalled = false;
 
 const classicRound = {
@@ -309,18 +320,17 @@ function mothershipAttack(enemy, container) {
 
 function fireEnemyBullet(type, enemyX, enemyY, container) {
 
-    const playerX = currentPlayer.x + 4.5; // Center of player
+    const playerX = currentPlayer.x + 4.5;
     const playerY = currentPlayer.y;
     
-    // Calculate bullet spawn position based on enemy type
     let bulletX = enemyX;
     let bulletY = enemyY;
     
     if (type === "boss") {
-        bulletX = enemyX + 6; // Center of boss
+        bulletX = enemyX + 6; 
         bulletY = enemyY + 10;
     } else {
-        bulletX = enemyX + 2.5; // Center of normal enemy
+        bulletX = enemyX + 2.5; 
         bulletY = enemyY + 5;
     }
 
@@ -337,7 +347,7 @@ function startCountdown(pageCon) {
         </div>`;
     const countdownEl = document.createElement("p");
     document.getElementById("countdown-con").appendChild(countdownEl);
-    let count = 3;
+    let count = 0;
     const timer = setInterval(() => {
         if (count > 0) {
             countdownEl.innerText = count;
@@ -539,7 +549,6 @@ function spawnBoss(container, speed, hp, type = "boss") {
         enemy.render(container);
         enemy.move(0, 40);
 
-        // Mothership shoots bursts every 4 seconds (increased from 3)
         const attackBurst = () => {
             if (!gameLoopRunning || enemy.remove || enemy.hp <= 0) {
                 return;
@@ -547,10 +556,8 @@ function spawnBoss(container, speed, hp, type = "boss") {
             mothershipAttack(enemy, container);
             setTimeout(attackBurst, 4000);
         };
-        setTimeout(attackBurst, 2000); // First attack after 2 seconds
-
+        setTimeout(attackBurst, 2000); 
     } else {
-        // Normal boss
         enemy.el.style.width = "15%";
         enemy.el.src = "img/sprite/boss.gif";
         enemy.render(container);
@@ -1106,6 +1113,46 @@ document.addEventListener("keydown", (event) => {
     }
 });
 
+btnUp.onclick = () => {
+    if (page === "Menu" && menu_btn_selected_id > 0) {
+        menu_btn_selected_id--;
+        updateSelection();
+    }
+};
+
+btnDown.onclick = () => {
+    if (page === "Menu" && menu_btn_selected_id < btn.length - 1) {
+        menu_btn_selected_id++;
+        updateSelection();
+    }
+};
+
+btnLeft.onclick = () => {
+    if (page === "Instruction" && ins_btn_selected_id > 0) {
+        ins_btn_selected_id--;
+        updateInstruction();
+    }
+};
+
+btnRight.onclick = () => {
+    if (page === "Instruction" && ins_btn_selected_id < insBtn.length - 1) {
+        ins_btn_selected_id++;
+        updateInstruction();
+    }
+};
+
+btnEnter.onclick = () => {
+    if (page === "Menu") {
+        const btn_selected = btn[menu_btn_selected_id];
+        page = btn_selected.innerText;
+        updatePage();
+    }
+};
+
+btnEsc.onclick = () => {
+    page = "Menu";
+    updatePage();
+}
 
 function main() {
     updateSelection();
@@ -1113,3 +1160,60 @@ function main() {
 }
 
 main();
+
+
+let moveLeftInterval, moveRightInterval, shootInterval;
+
+btnLeft.addEventListener("touchstart", () => {
+    if (!gameLoopRunning || !currentPlayer) return;
+    clearInterval(moveLeftInterval);
+    moveLeftInterval = setInterval(() => currentPlayer.move("left"), 10);
+});
+btnLeft.addEventListener("touchend", () => clearInterval(moveLeftInterval));
+
+btnRight.addEventListener("touchstart", () => {
+    if (!gameLoopRunning || !currentPlayer) return;
+    clearInterval(moveRightInterval);
+    moveRightInterval = setInterval(() => currentPlayer.move("right"), 10);
+});
+btnRight.addEventListener("touchend", () => clearInterval(moveRightInterval));
+
+btnAtk.addEventListener("touchstart", () => {
+    if (!gameLoopRunning || !currentPlayer) return;
+    clearInterval(shootInterval);
+    shootInterval = setInterval(() => currentPlayer.shoot(mainCon), 150);
+});
+btnAtk.addEventListener("touchend", () => clearInterval(shootInterval));
+btnAtk.addEventListener("click", () => {
+    if (!gameLoopRunning || !currentPlayer) return;
+    currentPlayer.shoot(mainCon)
+})
+btnX.addEventListener("touchstart", () => {
+    if (!gameLoopRunning || !currentPlayer) return;
+    if (playerHp < 100 && heal >= 100) {
+        playHealS();
+        playerHp += 10;
+        if (playerHp > 100) playerHp = 100;
+        heal = 0;
+        updateStats();
+    }
+});
+
+btnZ.addEventListener("touchstart", () => {
+    if (!gameLoopRunning || !currentPlayer) return;
+    if (superBall >= 100) {
+        playSuperballS();
+        currentPlayer.shoot(mainCon, true);
+        superBall = 0;
+        updateStats();
+    }
+});
+
+btnC.addEventListener("touchstart", () => {
+    if (!gameLoopRunning || !currentPlayer) return;
+    if (speedAtk >= 100) {
+        currentPlayer.fireRate = 100;
+        speedIsOn = true;
+        updateStats();
+    }
+});

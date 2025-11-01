@@ -13,36 +13,66 @@
         <title>Space Invader</title>
     </head>
     <body class="" data-bs-theme="dark" style="font-family: 'Press Start 2P'; font-size: 10px;">
-        <div class="container p-4 vh-100 d-flex justify-content-center">
-            <div class="w-25 d-none" id="hp-con">
-                <div class="border border-light border-3 text-center fw-bolder bg-light text-dark">LIVES</div>
-                <div class="border border-3 border-light p-1 bg-dark">
-                    <div class="d-flex align-items-center"><b class="me-2">HP:</b>
-                        <div class="flex-grow-1 bg-dark border border-light">
-                            <div id="hp-bar" class="flex-grow-1"></div>
+        <div id="game-wrapper" class="container p-4 d-flex justify-content-center">
+            <div class="d-flex flex-column w-25 ">
+                <div class="d-none" id="hp-con">
+                    <div class="border border-light border-3 text-center fw-bolder bg-light text-dark">LIVES</div>
+                    <div class="border border-3 border-light p-1 bg-dark">
+                        <div class="d-flex align-items-center"><b class="me-2">HP:</b>
+                            <div class="flex-grow-1 bg-dark border border-light">
+                                <div id="hp-bar" class="flex-grow-1"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <b>Life: </b>
+                            <span id="life-con"></span>
+                        </div>                
+                    </div>
+                    <div class="border border-light border-3 text-center fw-bolder bg-light text-dark">POWER UP</div>
+                    <div class="border border-3 border-light p-1 bg-dark">
+                        <div class="d-flex align-items-center mb-1"><b class="me-2">Super Ball (z):</b>
+                            <div class="flex-grow-1 bg-dark border border-light">
+                                <div id="super-ball-bar" class="flex-grow-1"></div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-1"><b class="me-2">Heal (x):</b>
+                            <div class="flex-grow-1 bg-dark border border-light">
+                                <div id="heal-bar" class="flex-grow-1"></div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-1"><b class="me-2">Speed (c):</b>
+                            <div class="flex-grow-1 bg-dark border border-light">
+                                <div id="speed-bar" class="flex-grow-1"></div>
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <b>Life: </b>
-                        <span id="life-con"></span>
-                    </div>                
                 </div>
-                <div class="border border-light border-3 text-center fw-bolder bg-light text-dark">POWER UP</div>
-                <div class="border border-3 border-light p-1 bg-dark">
-                    <div class="d-flex align-items-center mb-1"><b class="me-2">Super Ball (z):</b>
-                        <div class="flex-grow-1 bg-dark border border-light">
-                            <div id="super-ball-bar" class="flex-grow-1"></div>
-                        </div>
+                <div class="d-flex justify-content-end">
+                    <div class="mobile-toggles w-25">
+                        <button id="mobile-esc" class="border border-3 border-light w-100 bg-dark m-0">ESC</button>
                     </div>
-                    <div class="d-flex align-items-center mb-1"><b class="me-2">Heal (x):</b>
-                        <div class="flex-grow-1 bg-dark border border-light">
-                            <div id="heal-bar" class="flex-grow-1"></div>
+                </div>
+                <div class="flex-grow-1 d-flex">
+                    <div class="mt-auto m-1 row row-cols-3 mobile-toggles">
+                        <div class="col"></div>
+                        <div class="col p-2">
+                            <button id="mobile-up" class="border border-3 border-light rounded rounded-circle w-100 h-100 bg-dark m-0"><i class="bi bi-caret-up-fill fs-4"></i></button>
                         </div>
-                    </div>
-                    <div class="d-flex align-items-center mb-1"><b class="me-2">Speed (c):</b>
-                        <div class="flex-grow-1 bg-dark border border-light">
-                            <div id="speed-bar" class="flex-grow-1"></div>
+                        <div class="col"></div>
+                        <div class="col p-2">
+                            <button id="mobile-left" class="border border-3 border-light rounded rounded-circle w-100 h-100 bg-dark m-0"><i class="bi bi-caret-left-fill fs-4"></i></button>
                         </div>
+                        <div class="col p-1">
+                            <button id="mobile-enter" class="border border-3 border-light rounded rounded-circle w-100 h-100 bg-dark m-0">ENTER</button>
+                        </div>
+                        <div class="col p-2">
+                            <button id="mobile-right" class="border border-3 border-light rounded rounded-circle w-100 h-100 bg-dark m-0"><i class="bi bi-caret-right-fill fs-4"></i></button>
+                        </div>
+                        <div class="col"></div>
+                        <div class="col p-2">
+                            <button id="mobile-down" class="border border-3 border-light rounded rounded-circle w-100 h-100 bg-dark m-0"><i class="bi bi-caret-down-fill fs-4"></i></button>
+                        </div>
+                        <div class="col"></div>
                     </div>
                 </div>
             </div>
@@ -80,7 +110,7 @@
                     </p>
                 </div>
                 <div class="flex-grow-1 text-center p-3 d-none" id="CONTROLS">
-                    <table class="table table-bordered w-100 p-2 border-light cellpadding="2">
+                    <table class="table table-bordered w-100 p-2 border-light" cellpadding="2">
                         <thead>
                             <tr class="bg-secondary"><th>KEY</th><th>ACTION</th></tr>
                         </thead>
@@ -114,24 +144,43 @@
                 </div>
                 <div class="flex-grow-1 p-3 d-none" id="RULES">
                     <p>1. Goal: Destroy all enemies and survive each round.</p>
-                    <br>
                     <p>2. Rounds: Enemies appear in different formations — later rounds are harder.</p>
-                    <br>
                     <p>3. HP & Lives: Losing all HP costs one life. Game over when all lives are gone.</p>
-                    <br>
                     <p>4. Score: Earn points for every enemy destroyed.</p>
-                    <br>
                     <p>5. Victory: Clear all rounds to win the game.</p>
                 </div>
                 <hr>
                 <span class="w-100 text-center mt-auto">Use arrow key to navigate and esc to exit</span>
             </div>
-            <div class="w-25 d-none" id="stats-con">
-                <div class="border border-3 border-light text-center text-dark bg-light fw-bolder">STATS</div>
-                <div class="border border-3 border-light p-1 bg-dark">
-                    <div><b>Score: </b><span id="scoreEl">0</span></div>
-                    <div><b>Round: </b><span id="roundEl">0</span></div>
-                    <div><b>Enemy: </b><span id="enemyEl">0</span></div>
+            <div class="d-flex flex-column w-25 ">
+                <div class="d-none" id="stats-con">
+                    <div class="border border-3 border-light text-center text-dark bg-light fw-bolder">STATS</div>
+                    <div class="border border-3 border-light p-1 bg-dark">
+                        <div><b>Score: </b><span id="scoreEl">0</span></div>
+                        <div><b>Round: </b><span id="roundEl">0</span></div>
+                        <div><b>Enemy: </b><span id="enemyEl">0</span></div>
+                    </div>
+                </div>
+                <div class="flex-grow-1 d-flex">
+                    <div class="mt-auto m-1 row row-cols-3 mobile-toggles">
+                        <div class="col"></div>
+                        <div class="col p-0">
+                            <button id="mobile-z" class="border border-3 border-light rounded rounded-circle w-100 h-100 bg-dark m-0">Z</button>
+                        </div>
+                        <div class="col"></div>
+                        <div class="col p-0">
+                            <button id="mobile-x" class="border border-3 border-light rounded rounded-circle w-100 h-100 bg-dark m-0">X</button>
+                        </div>
+                        <div class="col"></div>
+                        <div class="col p-0">
+                            <button id="mobile-c" class="border border-3 border-light rounded rounded-circle w-100 h-100 bg-dark m-0">C</button>
+                        </div>
+                        <div class="col"></div>
+                        <div class="col p-0">
+                            <button id="mobile-atk" class="border border-3 border-light rounded rounded-circle w-100 h-100 bg-dark m-0">ATK</button>
+                        </div>
+                        <div class="col"></div>
+                    </div>
                 </div>
             </div>
         </div>
