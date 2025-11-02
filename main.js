@@ -64,7 +64,7 @@ let life = 3;
 
 let menu_btn_selected_id = 0;
 let ins_btn_selected_id = 0;
-let page = "Classic Mode";
+let page = "Menu";
 let nextRoundCalled = false;
 
 const classicRound = {
@@ -347,7 +347,7 @@ function startCountdown(pageCon) {
         </div>`;
     const countdownEl = document.createElement("p");
     document.getElementById("countdown-con").appendChild(countdownEl);
-    let count = 0;
+    let count = 3;
     const timer = setInterval(() => {
         if (count > 0) {
             countdownEl.innerText = count;
