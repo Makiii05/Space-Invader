@@ -60,7 +60,7 @@ let superBall = 0;
 let heal = 0;
 let speedAtk = 0;
 let speedIsOn = false;
-let life = 3;
+let life = 5;
 
 let menu_btn_selected_id = 0;
 let ins_btn_selected_id = 0;
@@ -70,15 +70,15 @@ let nextRoundCalled = false;
 const classicRound = {
     1: ["line", 20, 1000, 1],
     2: ["diagonal", 20, 1000, 1],
-    3: ["arrow", 2, 2000, 1],
-    4: ["boss", 1, 1000, 25],
+    3: ["arrow", 1, 2000, 1],
+    4: ["mothership", 1, 3000, 100],
     5: ["line", 30, 750, 1],
     6: ["diagonal", 30, 750, 1],
-    7: ["arrow", 3, 3000, 1],
+    7: ["arrow", 2, 3000, 1],
     8: ["boss", 2, 1000, 50],
     9: ["line", 50, 500, 1],
     10: ["diagonal", 50, 500, 1],
-    11: ["arrow", 4, 4000, 1],
+    11: ["arrow", 3, 4000, 1],
     12: ["mothership", 1, 3000, 200],
 };
 
@@ -145,7 +145,7 @@ function updateStats() {
 
 function updatePowerUPs() {
     if (superBall < 100) {
-        superBall += 1;
+        superBall += 4;
         superBallBar.style.width = superBall + "%";
         superBallBar.style.backgroundColor = "green";
     } else {
@@ -153,7 +153,7 @@ function updatePowerUPs() {
     }
 
     if (heal < 100) {
-        heal += 2;
+        heal += 8;
         healBar.style.width = heal + "%";
         healBar.style.backgroundColor = "green";
     } else {
@@ -161,7 +161,7 @@ function updatePowerUPs() {
     }
     
     if (speedAtk < 100 && speedIsOn == false) {
-        speedAtk += 0.5;
+        speedAtk += 2;
         speedBar.style.width = speedAtk + "%";
         speedBar.style.backgroundColor = "green";
     } else {
@@ -203,7 +203,7 @@ function resetGameState() {
     superBall = 0;
     heal = 0;
     speedAtk = 0;
-    life = 3;
+    life = 5;
     curRound = null;
     nextRoundCalled = false;
 
